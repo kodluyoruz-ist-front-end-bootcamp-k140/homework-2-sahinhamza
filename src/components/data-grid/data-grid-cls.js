@@ -78,7 +78,7 @@ export class DataGridClsComponent extends React.Component {
       return
     }
     // update
-    const index = items.findIndex(item => item.id == todo.id)
+    const index = items.findIndex(item => item.id === todo.id)
     items[index] = todo
     
     this.setState({ items, todo: null})
@@ -101,7 +101,7 @@ export class DataGridClsComponent extends React.Component {
       return
     }
     const { items } = this.state
-    const index = items.findIndex(item => item.id == id)
+    const index = items.findIndex(item => item.id === id)
     items.splice(index, 1)
     this.setState({ items })
   }

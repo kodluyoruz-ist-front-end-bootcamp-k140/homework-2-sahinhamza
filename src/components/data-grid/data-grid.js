@@ -1,13 +1,24 @@
 import React, { useEffect, useState } from "react"
 import { Button } from "../button"
 import { FormItem } from "../form-item"
+import "./style.css"
 
 export function DataGrid() {
 
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(false)
-
   const [todo, setTodo] = useState(null)
+
+  // variables definitions for pagination
+  const[currentPage, setCurrentPage] = useState(1);
+  const[postsPerPage, setPostsPerPage] = useState(25);
+
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+
+  // when we select different page this function changes data shown
+  const paginate = (pagenumber) => setCurrentPage(pagenumber)
+
 
   useEffect(() => {
     loadData()
@@ -29,7 +40,8 @@ export function DataGrid() {
   const renderBody = () => {
     return (
       <React.Fragment>
-        {items.sort((a, b) => b.id - a.id).map((item, i) => {
+        {/* show selected number of data inside a page */}
+        {items.slice(indexOfFirstPost, indexOfLastPost).sort((a, b) => b.id - a.id).map((item, i) => {
           return (
             <tr key={i}>
               <th scope="row" >{item.id}</th>
@@ -45,15 +57,50 @@ export function DataGrid() {
       </React.Fragment>
     )
   }
-
+  // pegination component
+  const Pegination = () => {
+    const pageNumbers = [];
+    
+    for(let i = 1; i <= Math.ceil(items.length / postsPerPage); i++) {
+      pageNumbers.push(i)
+    }
+    
+    return(
+      <React.Fragment>
+       <nav className="d-flex justify-content-center">
+          <ul className="pagination">
+            {pageNumbers.map(number => (
+              <li key={number} className="page-item">
+                <a href="!#" onClick={() => paginate(number)} className="page-link">
+                  {number}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </React.Fragment>
+    )
+  }
   const renderTable = () => {
     return (
     <>
-      <Button onClick={onAdd}>Ekle</Button>
+      <div className="d-flex">
+        <Button onClick={onAdd}>Ekle</Button>
+        {/* option button for different pagination */}
+        <select  onChange={(e) => setPostsPerPage(e.target.value)}
+        className="form-select form-select-md pegination-button"  
+        aria-label=".form-select-md example">
+          <option value={postsPerPage}>Sayfala</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="75">75</option>
+        </select>
+      </div>
+      
       <table className="table">
         <thead>
           <tr>
-            <th scope="col">#</th>
+            <th scope="col"># </th>
             <th scope="col">Başlık</th>
             <th scope="col">Durum</th>
             <th scope="col">Aksiyonlar</th>
@@ -63,6 +110,8 @@ export function DataGrid() {
           {renderBody()}
         </tbody>
       </table>
+      {/* rendering pagination component */}
+      {Pegination()}
     </>
     )
   }
@@ -82,7 +131,7 @@ export function DataGrid() {
       return
     }
     // update
-    const index = items.findIndex(item => item.id == todo.id)
+    const index = items.findIndex(item => item.id === todo.id)
     setItems(items => {
       items[index] = todo
       return [...items]
@@ -104,7 +153,7 @@ export function DataGrid() {
     if (!status) {
       return
     }
-    const index = items.findIndex(item => item.id == id)
+    const index = items.findIndex(item => item.id === id)
     
     setItems(items => {
       items.splice(index, 1)
