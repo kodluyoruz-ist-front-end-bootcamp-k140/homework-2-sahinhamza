@@ -1,13 +1,18 @@
 import React from "react"
 import { Button } from "../button"
 import { FormItem } from "../form-item"
+import "./style.css"
 
 export class DataGridClsComponent extends React.Component {
 
   state = {
     loading: false,
     items: [],
-    todo: null
+    todo: null,
+    // variables definitions for pagination
+    currentPage: 1,
+    postsPerPage: 25,
+    
   }
 
   componentDidMount() {
@@ -26,9 +31,11 @@ export class DataGridClsComponent extends React.Component {
   }
 
   renderBody = () => {
+    const indexOfLastPost = this.state.currentPage * this.state.postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - this.state.postsPerPage;
     return (
       <React.Fragment>
-        {this.state.items.sort((a, b) => b.id - a.id).map((item, i) => {
+        {this.state.items.slice(indexOfFirstPost, indexOfLastPost).sort((a, b) => b.id - a.id).map((item, i) => {
           return (
             <tr key={i}>
               <th scope="row" >{item.id}</th>
@@ -45,10 +52,47 @@ export class DataGridClsComponent extends React.Component {
     )
   }
 
+  Pegination = () => {
+    // when we select different page this function changes data shown
+    const paginate = (pagenumber) => this.setState({currentPage: pagenumber})
+
+    const pageNumbers = [];
+    for(let i = 1; i <= Math.ceil(this.state.items.length / this.state.postsPerPage); i++) {
+      pageNumbers.push(i)
+    }
+    
+    return(
+      <React.Fragment>
+       <nav className="d-flex justify-content-center">
+          <ul className="pagination">
+            {pageNumbers.map(number => (
+              <li key={number} className="page-item">
+                <a href="!#" onClick={() => paginate(number)} className="page-link">
+                  {number}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </React.Fragment>
+    )
+  }
+
   renderTable = () => {
     return (
       <>
+        <div className="d-flex">
         <Button onClick={this.onAdd}>Ekle</Button>
+        {/* option button for different pagination */}
+        <select  onChange={(e) => this.setState({postsPerPage:(e.target.value)})}
+        className="form-select form-select-md pegination-button"  
+        aria-label=".form-select-md example">
+          <option value={this.state.postsPerPage}>Sayfala</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="75">75</option>
+        </select>
+      </div>
         <table className="table">
           <thead>
             <tr>
@@ -62,6 +106,8 @@ export class DataGridClsComponent extends React.Component {
             {this.renderBody()}
           </tbody>
         </table>
+        {/* rendering pagination component */}
+        {this.Pegination()}
     </>
     )
   }
