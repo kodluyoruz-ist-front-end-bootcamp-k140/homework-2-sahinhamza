@@ -16,13 +16,41 @@ export function DataGrid() {
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
 
-  // when we select different page this function changes data shown
-  const paginate = (pagenumber) => setCurrentPage(pagenumber)
+  // variables definitions for reverse buttons
+  const[reverseListId, setReverseListId] = useState(false);
+  const[reverseListTitle, setReverseListTitle] = useState(false);
 
+  // variables definitions for filter button
+  const[todoList, setTodoList] = useState("0");
+  const [filteredTodos, setFilteredTodos]= useState([]);
+
+  
+  //function that sorts objects in array by propname
+  const propComparator = (propName) => {
+  return (a, b) => a[propName] === b[propName] ? 0 : a[propName] < b[propName] ? -1 : 1
+  }
 
   useEffect(() => {
     loadData()
-  }, [])
+  },[])
+
+  //to filter the list by filter button status
+  useEffect(() => {
+    const filterHandler = () => {
+      switch(todoList){
+        case '1':
+          setFilteredTodos(items.filter(item => item.completed === true))
+          break;
+        case '2':
+          setFilteredTodos(items.filter(item => item.completed === false))
+          break;
+        default:
+          setFilteredTodos(items)
+          break;
+      }
+    }
+    filterHandler()
+  },[todoList, items])
 
   const loadData = () => {
     setLoading(true)
@@ -37,11 +65,19 @@ export function DataGrid() {
     })
   }
 
+
   const renderBody = () => {
+    // what to do when the reverse buttons are clicked
+    filteredTodos.sort(propComparator("id")).reverse();
+    if (reverseListId === true) {
+      filteredTodos.sort(propComparator("id"));
+    }
+    if (reverseListTitle === true) {
+      filteredTodos.sort(propComparator("title"));
+    }
     return (
       <React.Fragment>
-        {/* show selected number of data inside a page */}
-        {items.slice(indexOfFirstPost, indexOfLastPost).sort((a, b) => b.id - a.id).map((item, i) => {
+        {filteredTodos.slice(indexOfFirstPost, indexOfLastPost).map((item, i) => {
           return (
             <tr key={i}>
               <th scope="row" >{item.id}</th>
@@ -59,9 +95,11 @@ export function DataGrid() {
   }
   // pegination component
   const Pegination = () => {
+    // when we select different page this function changes data shown
+    const paginate = (pagenumber) => setCurrentPage(pagenumber)
+
     const pageNumbers = [];
-    
-    for(let i = 1; i <= Math.ceil(items.length / postsPerPage); i++) {
+    for(let i = 1; i <= Math.ceil(filteredTodos.length / postsPerPage); i++) {
       pageNumbers.push(i)
     }
     
@@ -82,6 +120,13 @@ export function DataGrid() {
     )
   }
   const renderTable = () => {
+    const changeReverseListId = () => {
+      setReverseListId(!reverseListId);
+    }
+
+    const changeReverseListTitle = () => {
+      setReverseListTitle(!reverseListTitle)
+    }
     return (
     <>
       <div className="d-flex">
@@ -100,9 +145,25 @@ export function DataGrid() {
       <table className="table">
         <thead>
           <tr>
-            <th scope="col"># </th>
-            <th scope="col">Başlık</th>
-            <th scope="col">Durum</th>
+            <th scope="col"># 
+              {/* reverse button */}
+              <span><button className="reverse-button" onClick={changeReverseListId}> ❯ </button></span>
+            </th>
+            <th scope="col">Başlık
+              {/* reverse button */}
+              <span><button className="reverse-button" onClick={changeReverseListTitle}> ❯ </button></span> 
+            </th>
+            <th scope="col">Durum
+              {/* filter button */}
+              <span>
+                <select className="custom-select my-1 mr-sm-2 todos-button" 
+                onChange={(e) => setTodoList(e.target.value)}>
+                  <option value="0">Hepsi</option>
+                  <option value="1">Tamamlandı</option>
+                  <option value="2">Yapılacak</option>
+                </select>
+              </span>
+            </th>
             <th scope="col">Aksiyonlar</th>
           </tr>
         </thead>
