@@ -13,9 +13,6 @@ export function DataGrid() {
   const[currentPage, setCurrentPage] = useState(1);
   const[postsPerPage, setPostsPerPage] = useState(25);
 
-  const indexOfLastPost = currentPage * postsPerPage;
-  const indexOfFirstPost = indexOfLastPost - postsPerPage;
-
   // variables definitions for reverse buttons
   const[reverseListId, setReverseListId] = useState(false);
   const[reverseListTitle, setReverseListTitle] = useState(false);
@@ -65,8 +62,11 @@ export function DataGrid() {
     })
   }
 
-
   const renderBody = () => {
+    // variables definitions for pagination
+    const indexOfLastPost = currentPage * postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - postsPerPage;
+
     // what to do when the reverse buttons are clicked
     filteredTodos.sort(propComparator("id")).reverse();
     if (reverseListId === true) {
@@ -96,11 +96,11 @@ export function DataGrid() {
   // pegination component
   const Pegination = () => {
     // when we select different page this function changes data shown
-    const paginate = (pagenumber) => setCurrentPage(pagenumber)
+    const paginate = (pagenumber) => setCurrentPage(pagenumber);
 
     const pageNumbers = [];
     for(let i = 1; i <= Math.ceil(filteredTodos.length / postsPerPage); i++) {
-      pageNumbers.push(i)
+      pageNumbers.push(i);
     }
     
     return(
@@ -119,14 +119,8 @@ export function DataGrid() {
       </React.Fragment>
     )
   }
-  const renderTable = () => {
-    const changeReverseListId = () => {
-      setReverseListId(!reverseListId);
-    }
 
-    const changeReverseListTitle = () => {
-      setReverseListTitle(!reverseListTitle)
-    }
+  const renderTable = () => {
     return (
     <>
       <div className="d-flex">
@@ -147,11 +141,11 @@ export function DataGrid() {
           <tr>
             <th scope="col"># 
               {/* reverse button */}
-              <span><button className="reverse-button" onClick={changeReverseListId}> ❯ </button></span>
+              <span><button className="reverse-button" onClick={() => setReverseListId(!reverseListId)}> ❯ </button></span>
             </th>
             <th scope="col">Başlık
               {/* reverse button */}
-              <span><button className="reverse-button" onClick={changeReverseListTitle}> ❯ </button></span> 
+              <span><button className="reverse-button" onClick={() => setReverseListTitle(!reverseListTitle)}> ❯ </button></span> 
             </th>
             <th scope="col">Durum
               {/* filter button */}
@@ -183,7 +177,7 @@ export function DataGrid() {
     if (todo && todo.id === -1) {
       todo.id = Math.max(...items.map(item => item.id)) + 1;
       setItems(items => {
-        items.push(todo)
+        items.push(todo);
         return [...items]
       })
 
@@ -192,7 +186,7 @@ export function DataGrid() {
       return
     }
     // update
-    const index = items.findIndex(item => item.id === todo.id)
+    const index = items.findIndex(item => item.id === todo.id);
     setItems(items => {
       items[index] = todo
       return [...items]
